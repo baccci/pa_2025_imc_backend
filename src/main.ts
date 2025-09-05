@@ -4,7 +4,9 @@ import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.enableCors(); // Habilita CORS para el frontend
+  app.enableCors({
+    origin: 'https://2025-proyecto1-front-imc-drab.vercel.app',
+  });
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }));
   await app.listen(3000);
 }
