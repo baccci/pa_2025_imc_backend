@@ -97,3 +97,16 @@ Nest is an MIT-licensed open source project. It can grow thanks to the sponsors 
 ## License
 
 Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+
+
+Despliegue del Backend Esta sección describe los pasos para desplegar el servicio de backend de NestJS.
+
+Inicio de sesión y Creación del Espacio de Trabajo: Iniciamos sesión en el proveedor de alojamiento y creamos un nuevo espacio de trabajo para el proyecto, llamado "programación_avanzada".
+
+Selección del Servicio: Se seleccionó un "Servicio Web" (Web Service) como el tipo de despliegue para alojar nuestro servidor web.
+
+Configuración:
+
+Configuramos los ajustes de CORS (Cross-Origin Resource Sharing) para permitir que el frontend realice solicitudes HTTP a la API del backend.
+
+Se instalaron las dependencias necesarias del proyecto para asegurar que el servidor funcione correctamente.
