@@ -38,8 +38,30 @@ describe('ImcController', () => {
     expect(service.calcularImc).toHaveBeenCalledWith(dto);
   });
 
+  it('should return IMC and category for valid input', async () => {
+    const dto: CalcularImcDto = { altura: 1.82, peso: 40 };
+    jest.spyOn(service, 'calcularImc').mockReturnValue({ imc: 12.08, categoria: 'Bajo peso' });
+
+    const result = await controller.calcular(dto);
+    expect(result).toEqual({ imc: 12.08, categoria: 'Bajo peso' });
+    expect(service.calcularImc).toHaveBeenCalledWith(dto);
+  });
+  
   it('should throw BadRequestException for invalid input', async () => {
     const invalidDto: CalcularImcDto = { altura: -1, peso: 70 };
+
+    // Aplicar ValidationPipe manualmente en la prueba
+    const validationPipe = new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true });
+
+    await expect(validationPipe.transform(invalidDto, { type: 'body', metatype: CalcularImcDto }))
+      .rejects.toThrow(BadRequestException);
+
+    // Verificar que el servicio no se llama porque la validación falla antes
+    expect(service.calcularImc).not.toHaveBeenCalled();
+  });
+
+  it('should throw BadRequestException for invalid input', async () => {
+    const invalidDto: CalcularImcDto = { altura: 1.60, peso: -1 };
 
     // Aplicar ValidationPipe manualmente en la prueba
     const validationPipe = new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true });

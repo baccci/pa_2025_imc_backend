@@ -25,10 +25,38 @@ describe('ImcService', () => {
     expect(result.categoria).toBe('Normal');
   });
 
+  it('should calculate IMC correctly', () => {
+    const dto: CalcularImcDto = { altura: 1.88, peso: 85 };
+    const result = service.calcularImc(dto);
+    expect(result.imc).toBeCloseTo(24.05, 2);
+    expect(result.categoria).toBe('Normal');
+  });
+
+  it('should calculate IMC correctly', () => {
+    const dto: CalcularImcDto = { altura: 1.80, peso: 75 };
+    const result = service.calcularImc(dto);
+    expect(result.imc).toBeCloseTo(23.15, 2); // Redondeado a 2 decimales
+    expect(result.categoria).toBe('Normal');
+  });
+
   it('should return Bajo peso for IMC < 18.5', () => {
     const dto: CalcularImcDto = { altura: 1.75, peso: 50 };
     const result = service.calcularImc(dto);
     expect(result.imc).toBeCloseTo(16.33, 2);
+    expect(result.categoria).toBe('Bajo peso');
+  });
+
+  it('should return Bajo peso for IMC < 18.5', () => {
+    const dto: CalcularImcDto = { altura: 1.80, peso: 40 };
+    const result = service.calcularImc(dto);
+    expect(result.imc).toBeCloseTo(12.35, 2);
+    expect(result.categoria).toBe('Bajo peso');
+  });
+
+  it('should return Bajo peso for IMC < 18.5', () => {
+    const dto: CalcularImcDto = { altura: 1.76, peso: 56 };
+    const result = service.calcularImc(dto);
+    expect(result.imc).toBeCloseTo(18.08, 2);
     expect(result.categoria).toBe('Bajo peso');
   });
 
@@ -39,10 +67,38 @@ describe('ImcService', () => {
     expect(result.categoria).toBe('Sobrepeso');
   });
 
+  it('should return Sobrepeso for 25 <= IMC < 30', () => {
+    const dto: CalcularImcDto = { altura: 1.79, peso: 83 };
+    const result = service.calcularImc(dto);
+    expect(result.imc).toBeCloseTo(25.90, 2);
+    expect(result.categoria).toBe('Sobrepeso');
+  });
+
+  it('should return Sobrepeso for 25 <= IMC < 30', () => {
+    const dto: CalcularImcDto = { altura: 1.54, peso: 71 };
+    const result = service.calcularImc(dto);
+    expect(result.imc).toBeCloseTo(29.94, 2);
+    expect(result.categoria).toBe('Sobrepeso');
+  });
+
   it('should return Obeso for IMC >= 30', () => {
     const dto: CalcularImcDto = { altura: 1.75, peso: 100 };
     const result = service.calcularImc(dto);
     expect(result.imc).toBeCloseTo(32.65, 2);
+    expect(result.categoria).toBe('Obeso');
+  });
+
+  it('should return Obeso for IMC >= 30', () => {
+    const dto: CalcularImcDto = { altura: 1.75, peso: 500 };
+    const result = service.calcularImc(dto);
+    expect(result.imc).toBeCloseTo(163.27, 2);
+    expect(result.categoria).toBe('Obeso');
+  });
+
+  it('should handle small numbers correctly', () => {
+    const dto: CalcularImcDto = { altura: 1.0, peso: 30 }; 
+    const result = service.calcularImc(dto);
+    expect(result.imc).toBeCloseTo(30, 2);
     expect(result.categoria).toBe('Obeso');
   });
 });
