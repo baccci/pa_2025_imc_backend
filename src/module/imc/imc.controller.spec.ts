@@ -31,7 +31,7 @@ describe('ImcController', () => {
 
   it('should return IMC and category for valid input', async () => {
     const dto: CalcularImcDto = { altura: 1.75, peso: 70 };
-    jest.spyOn(service, 'calcularImc').mockReturnValue({ imc: 22.86, categoria: 'Normal' });
+    jest.spyOn(service, 'calcularImc').mockResolvedValue({ imc: 22.86, categoria: 'Normal' });
 
     const result = await controller.calcular(dto);
     expect(result).toEqual({ imc: 22.86, categoria: 'Normal' });
@@ -40,7 +40,7 @@ describe('ImcController', () => {
 
   it('should return IMC and category for valid input', async () => {
     const dto: CalcularImcDto = { altura: 1.82, peso: 40 };
-    jest.spyOn(service, 'calcularImc').mockReturnValue({ imc: 12.08, categoria: 'Bajo peso' });
+    jest.spyOn(service, 'calcularImc').mockResolvedValue({ imc: 12.08, categoria: 'Bajo peso' });
 
     const result = await controller.calcular(dto);
     expect(result).toEqual({ imc: 12.08, categoria: 'Bajo peso' });

@@ -35,5 +35,11 @@ export class ImcService {
 
     return { imc: imcRedondeado, categoria };
   }
+  async obtenerHistorial(): Promise<(CalcularImcDto & { imc: number; categoria: string; fecha: Date })[]> {
+    const registros = await this.imcRepository.find({
+      order: { fecha: 'DESC' },
+    });
+    return registros.map(ImcMapper.toDto);
+  }
 }
 

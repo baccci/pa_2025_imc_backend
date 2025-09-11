@@ -11,4 +11,14 @@ export class ImcMapper {
     // La fecha se asigna automáticamente por @CreateDateColumn
     return entity;
   }
+
+  static toDto(entity: ImcEntity): CalcularImcDto & { imc: number; categoria: string; fecha: Date } {
+    return {
+      peso: entity.peso,
+      altura: entity.altura,
+      imc: entity.imc,
+      categoria: entity.categoria,
+      fecha: entity.fecha,
+    };
+  }
 }
