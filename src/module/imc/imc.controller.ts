@@ -11,4 +11,9 @@ export class ImcController {
   calcular(@Body(ValidationPipe) data: CalcularImcDto) {
     return this.imcService.calcularImc(data);
   }
+
+  @Post('historial')
+  obtenerHistorial() {
+    return this.imcService.obtenerHistorial();
+  }
 }
