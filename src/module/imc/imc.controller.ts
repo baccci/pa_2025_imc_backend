@@ -1,4 +1,4 @@
-import { Controller, Post, Body, ValidationPipe, Get } from '@nestjs/common';
+import { Controller, Post, Get, Body, ValidationPipe } from '@nestjs/common';
 import { ImcService } from './imc.service';
 import { CalcularImcDto } from './dto/calcular-imc-dto';
 
