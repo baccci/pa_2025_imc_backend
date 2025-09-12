@@ -39,7 +39,8 @@ export class ImcService {
     const registros = await this.imcRepository.find({
       order: { fecha: 'DESC' },
     });
-    return registros.map(ImcMapper.toDto);
+    // Usar el mapper para convertir entidades a DTOs
+    return registros.map((r) => ImcMapper.toDto(r));
   }
 }
 
