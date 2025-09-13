@@ -26,6 +26,14 @@ async function seed() {
       { nombre: 'Ana', altura: 1.60, peso: 55 },
       { nombre: 'Carlos', altura: 1.82, peso: 90 },
       { nombre: 'Lucía', altura: 1.68, peso: 65 },
+      { nombre: 'Marcos', altura: 1.70, peso: 50 },
+      { nombre: 'Sofía', altura: 1.55, peso: 48 },
+      { nombre: 'Diego', altura: 1.90, peso: 110 },
+      { nombre: 'Valentina', altura: 1.62, peso: 75 },
+      { nombre: 'Ricardo', altura: 1.78, peso: 85 },
+      { nombre: 'Camila', altura: 1.65, peso: 60 },
+      { nombre: 'Fernando', altura: 1.72, peso: 95 },
+      { nombre: 'Marta', altura: 1.58, peso: 53 },
     ];
 
     for (const dato of datosPrueba) {
