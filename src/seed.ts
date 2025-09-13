@@ -14,8 +14,6 @@ const databaseConfig = {
   database: process.env.DB_NAME || 'imc_db',
 }
 
-console.log(databaseConfig);
-
 // Configuración de TypeORM
 const AppDataSource = new DataSource({
   type: 'mysql',
