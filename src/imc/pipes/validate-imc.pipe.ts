@@ -45,6 +45,7 @@ export class ValidateImcPipe implements PipeTransform {
     } 
     catch (error) {
       console.error('Error en ValidateImcPipe:', error);
+      
       if (error instanceof BadRequestException) {
         throw error; // Re-lanzar excepciones específicas
       }
