@@ -15,7 +15,8 @@ describe('ImcController', () => {
         {
           provide: ImcService,
           useValue: {
-            calcularImc: jest.fn(),
+            calcularImc: jest.fn(), // Mockear el método calcularImc
+            obtenerHistorial: jest.fn(), // Mockear el método obtenerHistorial
           },
         },
       ],
@@ -25,26 +26,27 @@ describe('ImcController', () => {
     service = module.get<ImcService>(ImcService);
   });
 
+  // Prueba básica para verificar que el controlador se define correctamente
   it('should be defined', () => {
     expect(controller).toBeDefined();
-  });
+  }); 
 
   it('should return IMC and category for valid input', async () => {
     const dto: CalcularImcDto = { altura: 1.75, peso: 70 };
-    jest.spyOn(service, 'calcularImc').mockResolvedValue({ imc: 22.86, categoria: 'Normal' });
+    const serviceSpy = jest.spyOn(service, 'calcularImc').mockResolvedValue({ imc: 22.86, categoria: 'Normal' });
 
     const result = await controller.calcular(dto);
     expect(result).toEqual({ imc: 22.86, categoria: 'Normal' });
-    expect(service.calcularImc).toHaveBeenCalledWith(dto);
+    expect(serviceSpy).toHaveBeenCalledWith(dto);
   });
 
   it('should return IMC and category for valid input', async () => {
     const dto: CalcularImcDto = { altura: 1.82, peso: 40 };
-    jest.spyOn(service, 'calcularImc').mockResolvedValue({ imc: 12.08, categoria: 'Bajo peso' });
+    const serviceSpy = jest.spyOn(service, 'calcularImc').mockResolvedValue({ imc: 12.08, categoria: 'Bajo peso' });
 
     const result = await controller.calcular(dto);
-    expect(result).toEqual({ imc: 12.08, categoria: 'Bajo peso' });
-    expect(service.calcularImc).toHaveBeenCalledWith(dto);
+    expect(result).toEqual({ imc: 12.08, categoria: 'Bajo peso' }); 
+    expect(serviceSpy).toHaveBeenCalledWith(dto); 
   });
   
   it('should throw BadRequestException for invalid input', async () => {
