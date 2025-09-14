@@ -5,7 +5,7 @@ import { ImcModule } from './imc/imc.module';
 import { AppController } from './app.controller';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { isDevelopment } from './utils/env-checker';
+import { isDevelopment, isProduction } from './utils/env-checker';
 import { CONFIG_KEYS } from './env/config-keys';
 import { envSchema } from './env/env-schema';
 
@@ -30,7 +30,7 @@ import { envSchema } from './env/env-schema';
         password: configService.get(CONFIG_KEYS.DB_PASSWORD),
         database: configService.get(CONFIG_KEYS.DB_NAME),
         autoLoadEntities: true,
-        synchronize: isDevelopment(),
+        synchronize: !isProduction(),
       }),
       inject: [ConfigService],
     }),
