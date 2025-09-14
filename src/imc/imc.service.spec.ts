@@ -1,14 +1,28 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { ImcService } from "./imc.service";
 import { CalcularImcDto } from "./dto/calcular-imc-dto";
+import { ImcEntity } from "./entities/imc.entity";
+import { getRepositoryToken } from "@nestjs/typeorm";
 
 
 describe('ImcService', () => {
   let service: ImcService;
 
   beforeEach(async () => {
+
+    const mockImcEntityRepository = {
+      save: jest.fn(),
+      find: jest.fn(),
+    };
+
     const module: TestingModule = await Test.createTestingModule({
-      providers: [ImcService],
+      providers: [
+        ImcService,
+        {
+          provide: getRepositoryToken(ImcEntity),
+          useValue: mockImcEntityRepository,
+        },
+      ],
     }).compile();
 
     service = module.get<ImcService>(ImcService);

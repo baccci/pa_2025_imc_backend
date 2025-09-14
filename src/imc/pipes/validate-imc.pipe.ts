@@ -19,36 +19,29 @@ export class ValidateImcPipe implements PipeTransform {
       const peso = Number(value.peso);
 
       // Validar que no sean NaN ni Infinity
-      if (isNaN(altura) || !isFinite(altura)) {
-        throw new BadRequestException('La altura debe ser un número válido');
+      if (isNaN(altura) || !isFinite(altura) || isNaN(peso) || !isFinite(peso)) {
+        throw new BadRequestException('Altura y peso deben ser números válidos.');
       }
-      if (isNaN(peso) || !isFinite(peso)) {
-        throw new BadRequestException('El peso debe ser un número válido');
-      }
-
+    
       // Validar rangos
-      if (altura <= 0) {
-        throw new BadRequestException('La altura debe ser mayor a 0 metros');
+      if (altura <= 0 || altura > 3) {
+        throw new BadRequestException('La altura debe estar entre 0 y 3 metros.');
       }
-      if (altura > 3) {
-        throw new BadRequestException('La altura no puede ser mayor a 3 metros');
-      }
-      if (peso <= 0) {
-        throw new BadRequestException('El peso debe ser mayor a 0 kg');
-      }
-      if (peso > 500) {
-        throw new BadRequestException('El peso no puede ser mayor a 500 kg');
+      if (peso <= 0 || peso > 500) {
+        throw new BadRequestException('El peso debe estar entre 0 y 500 kg.');
       }
 
       // Devolver el objeto validado con altura y peso como números
       return { altura, peso };
     } 
     catch (error) {
-      console.error('Error en ValidateImcPipe:', error);
+      //console.error('Error en ValidateImcPipe:', error);
       
       if (error instanceof BadRequestException) {
-        throw error; // Re-lanzar excepciones específicas
+        throw error; // mantener el mensaje específico
       }
+        
+      // Para cualquier otro error, lanzar un mensaje genérico
       throw new BadRequestException('Error inesperado durante la validación del IMC.');
     }
   }

@@ -13,8 +13,9 @@ import { envSchema } from './env/env-schema';
   imports: [
     ImcModule,
     ConfigModule.forRoot({
-      isGlobal: true,
-      validationSchema: envSchema,
+      isGlobal: true,      
+      envFilePath: '.env.temp',
+      validationSchema: envSchema, 
       validationOptions: {
         allowUnknown: true,
         abortEarly: true,
