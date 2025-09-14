@@ -1,16 +1,25 @@
 import { DataSource } from 'typeorm';
-import { ImcEntity } from './module/imc/entities/imc.entity'; // Ajusta la ruta según tu entity
+import { ImcEntity } from './imc/entities/imc.entity'; // Ajusta la ruta según tu entity
+import { isDevelopment } from './utils/env-checker';
+import { config } from 'dotenv';
+
+// Load environment variables
+config();
+
+const databaseConfig = {
+  host: process.env.DB_HOST || 'localhost',
+  port: parseInt(process.env.DB_PORT ?? '3306', 10),
+  username: process.env.DB_USER || 'root',
+  password: process.env.DB_PASSWORD || undefined,
+  database: process.env.DB_NAME || 'imc_db',
+}
 
 // Configuración de TypeORM
 const AppDataSource = new DataSource({
   type: 'mysql',
-  host: process.env.DB_HOST || 'localhost',
-  port: parseInt(process.env.DB_PORT ?? '3306', 10),
-  username: process.env.DB_USER || 'root',
-  password: process.env.DB_PASSWORD || 'Root',
-  database: process.env.DB_NAME || 'imc_db',
+  ...databaseConfig,
   entities: [ImcEntity],
-  synchronize: true, // Solo para desarrollo
+  synchronize: isDevelopment(),
 });
 
 async function seed() {
@@ -43,9 +52,9 @@ async function seed() {
       // Determinar categoría
       const categoria =
         imcValue < 18.5 ? 'Bajo peso' :
-        imcValue < 25 ? 'Normal' :
-        imcValue < 30 ? 'Sobrepeso' :
-        'Obesidad';
+          imcValue < 25 ? 'Normal' :
+            imcValue < 30 ? 'Sobrepeso' :
+              'Obesidad';
 
       // Crear entidad con todos los campos obligatorios
       const imcEntity = imcRepository.create({
