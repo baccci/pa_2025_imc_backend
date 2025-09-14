@@ -5,7 +5,7 @@ import { ImcModule } from './imc/imc.module';
 import { AppController } from './app.controller';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { isDevelopment } from './utils/env-checker';
+import { isDevelopment, isProduction } from './utils/env-checker';
 import { CONFIG_KEYS } from './env/config-keys';
 import { envSchema } from './env/env-schema';
 
@@ -25,13 +25,13 @@ import { envSchema } from './env/env-schema';
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
         type: 'mysql',
-        host: configService.get(CONFIG_KEYS.DB_HOST) || 'localhost',
+        host: configService.get(CONFIG_KEYS.DB_HOST),
         port: parseInt(configService.get(CONFIG_KEYS.DB_PORT) ?? '3306', 10),
-        username: configService.get(CONFIG_KEYS.DB_USER) || 'root',
-        password: configService.get(CONFIG_KEYS.DB_PASSWORD) || 'Root',
-        database: configService.get(CONFIG_KEYS.DB_NAME) || 'imc_db',
+        username: configService.get(CONFIG_KEYS.DB_USER),
+        password: configService.get(CONFIG_KEYS.DB_PASSWORD),
+        database: configService.get(CONFIG_KEYS.DB_NAME),
         autoLoadEntities: true,
-        synchronize: isDevelopment(),
+        synchronize: !isProduction(),
       }),
       inject: [ConfigService],
     }),
