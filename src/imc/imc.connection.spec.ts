@@ -2,9 +2,9 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { TypeOrmModule, getDataSourceToken } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { ImcEntity } from './entities/imc.entity';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { envSchema } from '../env/env-schema';
-import { CONFIG_KEYS } from '../env/config-keys';
+// import { ConfigModule, ConfigService } from '@nestjs/config';
+// import { envSchema } from '../env/env-schema';
+// import { CONFIG_KEYS } from '../env/config-keys';
 
 describe('MySQL Database Connection', () => {
   let module: TestingModule;
@@ -42,7 +42,7 @@ describe('MySQL Database Connection', () => {
     }
   });
 
-  it('should initialize MySQL connection', async () => {
+  it('should initialize MySQL connection', () => {
     expect(dataSource.isInitialized).toBe(true);
   });
 
