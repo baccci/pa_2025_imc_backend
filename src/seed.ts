@@ -4,7 +4,7 @@ import { isDevelopment } from './utils/env-checker';
 import { config } from 'dotenv';
 
 // Load environment variables
-config();
+config({ path: '.env.temp' });
 
 const databaseConfig = {
   host: process.env.DB_HOST || 'localhost',
@@ -13,6 +13,7 @@ const databaseConfig = {
   password: process.env.DB_PASSWORD || undefined,
   database: process.env.DB_NAME || 'imc_db',
 }
+
 
 // Configuración de TypeORM
 const AppDataSource = new DataSource({
@@ -54,7 +55,7 @@ async function seed() {
         imcValue < 18.5 ? 'Bajo peso' :
           imcValue < 25 ? 'Normal' :
             imcValue < 30 ? 'Sobrepeso' :
-              'Obesidad';
+              'Obeso';
 
       // Crear entidad con todos los campos obligatorios
       const imcEntity = imcRepository.create({

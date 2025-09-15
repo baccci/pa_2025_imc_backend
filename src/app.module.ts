@@ -5,7 +5,7 @@ import { ImcModule } from './imc/imc.module';
 import { AppController } from './app.controller';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { isDevelopment, isProduction } from './utils/env-checker';
+import { isProduction } from './utils/env-checker';
 import { CONFIG_KEYS } from './env/config-keys';
 import { envSchema } from './env/env-schema';
 
