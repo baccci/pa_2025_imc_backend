@@ -18,6 +18,7 @@ describe('MySQL Database Connection', () => {
   process.env.DB_NAME = 'imc_test';
 
   beforeAll(async () => {
+    jest.setTimeout(20000); // 20 segundos
     module = await Test.createTestingModule({
       imports: [
         TypeOrmModule.forRootAsync({
@@ -34,20 +35,19 @@ describe('MySQL Database Connection', () => {
         }),
       ],
     }).compile();
-
     dataSource = module.get<DataSource>(getDataSourceToken());
 
     if (!dataSource.isInitialized) {
       await dataSource.initialize();
     }
-  });
+  } , 20000);
 
   it('should initialize MySQL connection', () => {
     expect(dataSource.isInitialized).toBe(true);
   });
 
   afterAll(async () => {
-    if (dataSource.isInitialized) {
+    if (dataSource?.isInitialized) {
       await dataSource.destroy();
     }
   });
