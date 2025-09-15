@@ -4,7 +4,7 @@ import { isDevelopment } from './utils/env-checker';
 import { config } from 'dotenv';
 
 // Load environment variables
-config();
+config({ path:'.env.temp'});
 
 const databaseConfig = {
   host: process.env.DB_HOST || 'localhost',
@@ -19,7 +19,7 @@ const AppDataSource = new DataSource({
   type: 'mysql',
   ...databaseConfig,
   entities: [ImcEntity],
-  synchronize: isDevelopment(),
+  synchronize: true,
 });
 
 async function seed() {
