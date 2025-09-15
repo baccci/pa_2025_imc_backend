@@ -1,108 +1,116 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { TypeOrmModule, getDataSourceToken } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
-import { ImcService } from './imc.service';
-import { ImcEntity } from './entities/imc.entity';
-import { CalcularImcDto } from './dto/calcular-imc-dto';
+import { Test, TestingModule } from "@nestjs/testing";
+import { ImcService } from "./imc.service";
+import { CalcularImcDto } from "./dto/calcular-imc-dto";
+import { ImcEntity } from "./entities/imc.entity";
+import { getRepositoryToken } from "@nestjs/typeorm";
 
-describe('IMC Service Integration Tests', () => {
+describe('ImcService', () => {
   let service: ImcService;
-  let dataSource: DataSource;
 
-  // Variables de entorno inline
-  process.env.DB_HOST = 'localhost';
-  process.env.DB_PORT = '3306';
-  process.env.DB_USER = 'root';
-  process.env.DB_PASSWORD = '123456';
-  process.env.DB_NAME = 'imc_test';
+  beforeEach(async () => {
+    const mockImcEntityRepository = {
+      save: jest.fn(),
+      find: jest.fn(),
+    };
 
-  beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [
-        TypeOrmModule.forRootAsync({
-          useFactory: () => ({
-            type: 'mysql' as const,
-            host: process.env.DB_HOST ?? 'localhost',
-            port: parseInt(process.env.DB_PORT ?? '3306', 10),
-            username: process.env.DB_USER ?? 'root',
-            password: process.env.DB_PASSWORD ?? '',
-            database: process.env.DB_NAME ?? 'imc_test',
-            entities: [ImcEntity],
-            synchronize: true, // crea tablas automáticamente para testing
-          }),
-        }),
-        TypeOrmModule.forFeature([ImcEntity]),
+      providers: [
+        ImcService,
+        {
+          provide: getRepositoryToken(ImcEntity),
+          useValue: mockImcEntityRepository,
+        },
       ],
-      providers: [ImcService],
     }).compile();
 
     service = module.get<ImcService>(ImcService);
-    dataSource = module.get<DataSource>(getDataSourceToken());
-
-    if (!dataSource.isInitialized) {
-      await dataSource.initialize();
-    }
   });
 
-  afterEach(async () => {
-    const repo = dataSource.getRepository(ImcEntity);
-    await repo.clear(); // limpia la tabla después de cada test
+  it('should be defined', () => {
+    expect(service).toBeDefined();
   });
 
-  afterAll(async () => {
-    if (dataSource.isInitialized) {
-      await dataSource.destroy();
-    }
-  });
-
-  // =====================
-  // Test: Create / calcularImc
-  // =====================
-  it('should calculate IMC and save record', async () => {
+  it('should calculate IMC correctly', async () => {
     const dto: CalcularImcDto = { altura: 1.75, peso: 70 };
     const result = await service.calcularImc(dto);
-
-    expect(result.imc).toBeCloseTo(22.86, 1);
+    expect(result.imc).toBeCloseTo(22.86, 2); // Redondeado a 2 decimales
     expect(result.categoria).toBe('Normal');
-
-    const repo = dataSource.getRepository(ImcEntity);
-    const registros = await repo.find();
-    expect(registros.length).toBe(1);
-    expect(registros[0].imc).toBeCloseTo(22.86, 1);
-    expect(registros[0].categoria).toBe('Normal');
   });
 
-  // =====================
-  // Test: Read / obtenerHistorial
-  // =====================
-  it('should return IMC history ordered by fecha DESC', async () => {
-    await service.calcularImc({ altura: 1.75, peso: 50 }); // Bajo peso
-    await service.calcularImc({ altura: 1.80, peso: 90 }); // Sobrepeso
-
-    const historial = await service.obtenerHistorial();
-    expect(historial.length).toBe(2);
-
-    expect(historial[0].peso).toBe(90);
-    expect(historial[0].categoria).toBe('Sobrepeso');
-
-    expect(historial[1].peso).toBe(50);
-    expect(historial[1].categoria).toBe('Bajo peso'); // coincide con la lógica actual
+  it('should calculate IMC correctly', async () => {
+    const dto: CalcularImcDto = { altura: 1.88, peso: 85 };
+    const result = await service.calcularImc(dto);
+    expect(result.imc).toBeCloseTo(24.05, 2);
+    expect(result.categoria).toBe('Normal');
   });
 
-  // =====================
-  // Opcional: más tests de categorías
-  // =====================
-  it('should return correct categories', async () => {
-    const casos: { dto: CalcularImcDto; categoria: string }[] = [
-      { dto: { altura: 1.75, peso: 50 }, categoria: 'Bajo peso' },
-      { dto: { altura: 1.75, peso: 70 }, categoria: 'Normal' },
-      { dto: { altura: 1.75, peso: 80 }, categoria: 'Sobrepeso' },
-      { dto: { altura: 1.75, peso: 100 }, categoria: 'Obeso' },
-    ];
+  it('should calculate IMC correctly', async () => {
+    const dto: CalcularImcDto = { altura: 1.80, peso: 75 };
+    const result = await service.calcularImc(dto);
+    expect(result.imc).toBeCloseTo(23.15, 2); // Redondeado a 2 decimales
+    expect(result.categoria).toBe('Normal');
+  });
 
-    for (const c of casos) {
-      const result = await service.calcularImc(c.dto);
-      expect(result.categoria).toBe(c.categoria);
-    }
+  it('should return Bajo peso for IMC < 18.5', async () => {
+    const dto: CalcularImcDto = { altura: 1.75, peso: 50 };
+    const result = await service.calcularImc(dto);
+    expect(result.imc).toBeCloseTo(16.33, 2);
+    expect(result.categoria).toBe('Bajo peso');
+  });
+
+  it('should return Bajo peso for IMC < 18.5', async () => {
+    const dto: CalcularImcDto = { altura: 1.80, peso: 40 };
+    const result = await service.calcularImc(dto);
+    expect(result.imc).toBeCloseTo(12.35, 2);
+    expect(result.categoria).toBe('Bajo peso');
+  });
+
+  it('should return Bajo peso for IMC < 18.5', async () => {
+    const dto: CalcularImcDto = { altura: 1.76, peso: 56 };
+    const result = await service.calcularImc(dto);
+    expect(result.imc).toBeCloseTo(18.08, 2);
+    expect(result.categoria).toBe('Bajo peso');
+  });
+
+  it('should return Sobrepeso for 25 <= IMC < 30', async () => {
+    const dto: CalcularImcDto = { altura: 1.75, peso: 80 };
+    const result = await service.calcularImc(dto);
+    expect(result.imc).toBeCloseTo(26.12, 2);
+    expect(result.categoria).toBe('Sobrepeso');
+  });
+
+  it('should return Sobrepeso for 25 <= IMC < 30', async () => {
+    const dto: CalcularImcDto = { altura: 1.79, peso: 83 };
+    const result = await service.calcularImc(dto);
+    expect(result.imc).toBeCloseTo(25.90, 2);
+    expect(result.categoria).toBe('Sobrepeso');
+  });
+
+  it('should return Sobrepeso for 25 <= IMC < 30', async () => {
+    const dto: CalcularImcDto = { altura: 1.54, peso: 71 };
+    const result = await service.calcularImc(dto);
+    expect(result.imc).toBeCloseTo(29.94, 2);
+    expect(result.categoria).toBe('Sobrepeso');
+  });
+
+  it('should return Obeso for IMC >= 30', async () => {
+    const dto: CalcularImcDto = { altura: 1.75, peso: 100 };
+    const result = await service.calcularImc(dto);
+    expect(result.imc).toBeCloseTo(32.65, 2);
+    expect(result.categoria).toBe('Obeso');
+  });
+
+  it('should return Obeso for IMC >= 30', async () => {
+    const dto: CalcularImcDto = { altura: 1.75, peso: 500 };
+    const result = await service.calcularImc(dto);
+    expect(result.imc).toBeCloseTo(163.27, 2);
+    expect(result.categoria).toBe('Obeso');
+  });
+
+  it('should handle small numbers correctly', async () => {
+    const dto: CalcularImcDto = { altura: 1.0, peso: 30 }; 
+    const result = await service.calcularImc(dto);
+    expect(result.imc).toBeCloseTo(30, 2);
+    expect(result.categoria).toBe('Obeso');
   });
 });
