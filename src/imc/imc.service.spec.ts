@@ -5,14 +5,12 @@ import { ImcEntity } from "./entities/imc.entity";
 import { getRepositoryToken } from "@nestjs/typeorm";
 import { ImcMapper } from "./mappers/imc.mapper";
 
-
 describe('ImcService', () => {
   let service: ImcService;
   
   let mockImcEntityRepository: { save: jest.Mock; find: jest.Mock };
 
   beforeEach(async () => {
-
     mockImcEntityRepository = {
       save: jest.fn(),
       find: jest.fn(),
@@ -140,3 +138,4 @@ describe('ImcService', () => {
   });
 
 });
+

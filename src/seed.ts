@@ -1,10 +1,9 @@
 import { DataSource } from 'typeorm';
 import { ImcEntity } from './imc/entities/imc.entity'; // Ajusta la ruta según tu entity
-import { isDevelopment } from './utils/env-checker';
 import { config } from 'dotenv';
 
 // Load environment variables
-config({ path: '.env.temp' });
+config({ path:'.env.temp'});
 
 const databaseConfig = {
   host: process.env.DB_HOST || 'localhost',
@@ -20,7 +19,7 @@ const AppDataSource = new DataSource({
   type: 'mysql',
   ...databaseConfig,
   entities: [ImcEntity],
-  synchronize: isDevelopment(),
+  synchronize: true,
 });
 
 async function seed() {
