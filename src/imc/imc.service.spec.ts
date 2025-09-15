@@ -3,14 +3,17 @@ import { ImcService } from "./imc.service";
 import { CalcularImcDto } from "./dto/calcular-imc-dto";
 import { ImcEntity } from "./entities/imc.entity";
 import { getRepositoryToken } from "@nestjs/typeorm";
+import { ImcMapper } from "./mappers/imc.mapper";
 
 
 describe('ImcService', () => {
   let service: ImcService;
+  
+  let mockImcEntityRepository: { save: jest.Mock; find: jest.Mock };
 
   beforeEach(async () => {
 
-    const mockImcEntityRepository = {
+    mockImcEntityRepository = {
       save: jest.fn(),
       find: jest.fn(),
     };
@@ -29,90 +32,111 @@ describe('ImcService', () => {
   });
 
   it('should be defined', () => {
-    expect(service).toBeDefined();
+      expect(service).toBeDefined();
+    });
+
+  // Casos de prueba para calcularImc
+  describe('calcularImc', () => {
+
+    // Casos típicos
+    it.each([
+      // Normal
+      { altura: 1.75, peso: 70, imc: 22.86, categoria: 'Normal' },
+      { altura: 1.88, peso: 85, imc: 24.05, categoria: 'Normal' },
+      { altura: 1.80, peso: 75, imc: 23.15, categoria: 'Normal' },
+
+      // Bajo peso
+      { altura: 1.75, peso: 50, imc: 16.33, categoria: 'Bajo peso' },
+      { altura: 1.80, peso: 40, imc: 12.35, categoria: 'Bajo peso' },
+      { altura: 1.76, peso: 56, imc: 18.08, categoria: 'Bajo peso' },
+
+      // Sobrepeso
+      { altura: 1.75, peso: 80, imc: 26.12, categoria: 'Sobrepeso' },
+      { altura: 1.79, peso: 83, imc: 25.90, categoria: 'Sobrepeso' },
+      { altura: 1.54, peso: 71, imc: 29.94, categoria: 'Sobrepeso' },
+
+      // Obeso
+      { altura: 1.75, peso: 100, imc: 32.65, categoria: 'Obeso' },
+      { altura: 1.75, peso: 500, imc: 163.27, categoria: 'Obeso' },
+      { altura: 1.0, peso: 40, imc: 40, categoria: 'Obeso' },
+    ])(
+      'should calculate IMC correctly for %#',
+      async ({ altura, peso, imc: imcEsperado, categoria: categoriaEsperada }) => {
+        const dto: CalcularImcDto = { altura, peso };
+        const result = await service.calcularImc(dto);
+        expect(result.imc).toBeCloseTo(imcEsperado, 2);
+        expect(result.categoria).toBe(categoriaEsperada);
+      },
+    );
+
+    // Valores en los límites
+    it.each([
+      { altura: 1.75, peso: 56.875, imc: 18.57, categoria: 'Normal' },       // límite inferior Normal
+      { altura: 1.75, peso: 76.16, imc: 24.87, categoria: 'Normal' },        // límite superior Normal
+      { altura: 1.75, peso: 76.875, imc: 25.10, categoria: 'Sobrepeso' },      // límite inferior Sobrepeso
+      { altura: 1.75, peso: 91.56, imc: 29.90, categoria: 'Sobrepeso' },     // límite superior Sobrepeso
+      { altura: 1.75, peso: 91.875, imc: 30, categoria: 'Obeso' },          // límite inferior Obeso
+    ])('should calculate IMC correctly on boundary values for %#', 
+      async ({ altura, peso, imc: imcEsperado, categoria: categoriaEsperada }) => {
+        const dto: CalcularImcDto = { altura, peso };
+        const result = await service.calcularImc(dto);
+        expect(result.imc).toBeCloseTo(imcEsperado, 2);
+        expect(result.categoria).toBe(categoriaEsperada);
+      },
+    );
+
   });
 
-  it('should calculate IMC correctly', async () => {
-    const dto: CalcularImcDto = { altura: 1.75, peso: 70 };
-    const result = await service.calcularImc(dto);
-    expect(result.imc).toBeCloseTo(22.86, 2); // Redondeado a 2 decimales
-    expect(result.categoria).toBe('Normal');
+  // Casos de prueba para obtenerHistorial
+  describe('obtenerHistorial', () => {
+
+    beforeEach(() => {
+      // Resetear mocks si es necesario
+      jest.clearAllMocks();
+    });
+
+    it('should return an empty array when no records exist', async () => {
+      mockImcEntityRepository.find.mockResolvedValue([]);
+      const result = await service.obtenerHistorial();
+      expect(result).toEqual([]);
+    });
+
+    it('should call repository.find with correct order and map results', async () => {
+      const mockRecords = [
+        { altura: 1.75, peso: 70, imc: 22.86, categoria: 'Normal', fecha: new Date('2023-01-01') },
+        { altura: 1.80, peso: 90, imc: 27.78, categoria: 'Sobrepeso', fecha: new Date('2023-02-01') },
+      ] as ImcEntity[];
+
+      const findSpy = jest.spyOn(mockImcEntityRepository, 'find').mockResolvedValue(mockRecords);
+      const mapperSpy = jest.spyOn(ImcMapper, 'toDto');
+
+      const result = await service.obtenerHistorial();
+
+      // Verificar que find fue llamado con la opción correcta
+      expect(findSpy).toHaveBeenCalledWith({ order: { fecha: 'DESC' } });
+
+      // Verificar que mapper fue llamado para cada registro
+      expect(mapperSpy).toHaveBeenCalledTimes(mockRecords.length);
+
+      // Verificar que el resultado es el esperado según el mapper
+      expect(result).toEqual(mockRecords.map((r) => ({
+        altura: r.altura,
+        peso: r.peso,
+        imc: r.imc,
+        categoria: r.categoria,
+        fecha: r.fecha,
+      })));
+    });
+
+    it('should throw InternalServerErrorException if repository.find fails', async () => {
+      jest.spyOn(mockImcEntityRepository, 'find').mockRejectedValue(new Error('DB error'));
+
+      await expect(service.obtenerHistorial())
+        .rejects
+        .toThrow('Error al obtener el historial de IMC');
+      
+     });
+
   });
 
-  it('should calculate IMC correctly', async () => {
-    const dto: CalcularImcDto = { altura: 1.88, peso: 85 };
-    const result = await service.calcularImc(dto);
-    expect(result.imc).toBeCloseTo(24.05, 2);
-    expect(result.categoria).toBe('Normal');
-  });
-
-  it('should calculate IMC correctly', async () => {
-    const dto: CalcularImcDto = { altura: 1.80, peso: 75 };
-    const result = await service.calcularImc(dto);
-    expect(result.imc).toBeCloseTo(23.15, 2); // Redondeado a 2 decimales
-    expect(result.categoria).toBe('Normal');
-  });
-
-  it('should return Bajo peso for IMC < 18.5', async () => {
-    const dto: CalcularImcDto = { altura: 1.75, peso: 50 };
-    const result = await service.calcularImc(dto);
-    expect(result.imc).toBeCloseTo(16.33, 2);
-    expect(result.categoria).toBe('Bajo peso');
-  });
-
-  it('should return Bajo peso for IMC < 18.5', async () => {
-    const dto: CalcularImcDto = { altura: 1.80, peso: 40 };
-    const result = await service.calcularImc(dto);
-    expect(result.imc).toBeCloseTo(12.35, 2);
-    expect(result.categoria).toBe('Bajo peso');
-  });
-
-  it('should return Bajo peso for IMC < 18.5', async () => {
-    const dto: CalcularImcDto = { altura: 1.76, peso: 56 };
-    const result = await service.calcularImc(dto);
-    expect(result.imc).toBeCloseTo(18.08, 2);
-    expect(result.categoria).toBe('Bajo peso');
-  });
-
-  it('should return Sobrepeso for 25 <= IMC < 30', async () => {
-    const dto: CalcularImcDto = { altura: 1.75, peso: 80 };
-    const result = await service.calcularImc(dto);
-    expect(result.imc).toBeCloseTo(26.12, 2);
-    expect(result.categoria).toBe('Sobrepeso');
-  });
-
-  it('should return Sobrepeso for 25 <= IMC < 30', async () => {
-    const dto: CalcularImcDto = { altura: 1.79, peso: 83 };
-    const result = await service.calcularImc(dto);
-    expect(result.imc).toBeCloseTo(25.90, 2);
-    expect(result.categoria).toBe('Sobrepeso');
-  });
-
-  it('should return Sobrepeso for 25 <= IMC < 30', async () => {
-    const dto: CalcularImcDto = { altura: 1.54, peso: 71 };
-    const result = await service.calcularImc(dto);
-    expect(result.imc).toBeCloseTo(29.94, 2);
-    expect(result.categoria).toBe('Sobrepeso');
-  });
-
-  it('should return Obeso for IMC >= 30', async () => {
-    const dto: CalcularImcDto = { altura: 1.75, peso: 100 };
-    const result = await service.calcularImc(dto);
-    expect(result.imc).toBeCloseTo(32.65, 2);
-    expect(result.categoria).toBe('Obeso');
-  });
-
-  it('should return Obeso for IMC >= 30', async () => {
-    const dto: CalcularImcDto = { altura: 1.75, peso: 500 };
-    const result = await service.calcularImc(dto);
-    expect(result.imc).toBeCloseTo(163.27, 2);
-    expect(result.categoria).toBe('Obeso');
-  });
-
-  it('should handle small numbers correctly', async () => {
-    const dto: CalcularImcDto = { altura: 1.0, peso: 30 }; 
-    const result = await service.calcularImc(dto);
-    expect(result.imc).toBeCloseTo(30, 2);
-    expect(result.categoria).toBe('Obeso');
-  });
 });
