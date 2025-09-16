@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn } from 'typeorm';
+import { UserEntity } from 'src/auth/entities/user.entity';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, ManyToOne } from 'typeorm';
 
 @Entity('imc_calculos')
 export class ImcEntity {
@@ -19,4 +20,7 @@ export class ImcEntity {
 
   @CreateDateColumn()
   fecha: Date;
+
+  @ManyToOne(() => UserEntity, (user) => user.imcs, { eager: false })
+  user: UserEntity;
 }

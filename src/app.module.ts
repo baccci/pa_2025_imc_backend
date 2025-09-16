@@ -8,13 +8,15 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { isProduction } from './utils/env-checker';
 import { CONFIG_KEYS } from './env/config-keys';
 import { envSchema } from './env/env-schema';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
     ImcModule,
+    AuthModule,
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: '.env',
+      envFilePath: '.env.temp',
       validationSchema: envSchema,
       validationOptions: {
         allowUnknown: true,
@@ -31,7 +33,7 @@ import { envSchema } from './env/env-schema';
         password: configService.get(CONFIG_KEYS.DB_PASSWORD),
         database: configService.get(CONFIG_KEYS.DB_NAME),
         autoLoadEntities: true,
-        synchronize: !isProduction(),
+        synchronize: true,
       }),
       inject: [ConfigService],
     }),
