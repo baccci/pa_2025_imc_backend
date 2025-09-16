@@ -17,6 +17,8 @@ describe('IMC Service Integration Tests', () => {
   process.env.DB_NAME = 'imc_test';
 
   beforeAll(async () => {
+     
+    jest.setTimeout(20000); // 20 segundos
     const module: TestingModule = await Test.createTestingModule({
       imports: [
         TypeOrmModule.forRootAsync({
@@ -42,7 +44,7 @@ describe('IMC Service Integration Tests', () => {
     if (!dataSource.isInitialized) {
       await dataSource.initialize();
     }
-  });
+  }, 20000);
 
   afterEach(async () => {
     const repo = dataSource.getRepository(ImcEntity);
