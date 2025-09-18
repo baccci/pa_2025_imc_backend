@@ -36,7 +36,6 @@ describe('MySQL Database Connection', () => {
         }),
       ],
     }).compile();
-
     dataSource = module.get<DataSource>(getDataSourceToken());
 
     if (!dataSource.isInitialized) {
@@ -49,7 +48,7 @@ describe('MySQL Database Connection', () => {
   });
 
   afterAll(async () => {
-    if (dataSource.isInitialized) {
+    if (dataSource?.isInitialized) {
       await dataSource.destroy();
     }
   });
