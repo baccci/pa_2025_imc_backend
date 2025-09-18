@@ -14,7 +14,7 @@ import { envSchema } from './env/env-schema';
     ImcModule,
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: '.env',
+      envFilePath: '.env', // Ruta del archivo de variables de entorno
       validationSchema: envSchema,
       validationOptions: {
         allowUnknown: true,

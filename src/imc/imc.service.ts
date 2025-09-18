@@ -1,6 +1,6 @@
 import { Injectable, InternalServerErrorException } from "@nestjs/common";
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Between, LessThanOrEqual, MoreThanOrEqual, Repository } from 'typeorm';
 import { CalcularImcDto } from "./dto/calcular-imc-dto";
 import { ImcEntity } from "./entities/imc.entity";
 import { ImcMapper } from "./mappers/imc.mapper";
@@ -52,6 +52,34 @@ export class ImcService {
     } catch (error) {
       console.error('Error en obtenerHistorial:', error);
       throw new InternalServerErrorException('Error al obtener el historial de IMC');
+    }
+  }
+
+  async obtenerHistorialFiltrado(desde?: Date, hasta?: Date) {
+    try {
+      // Crear un objeto where que luego se pasa a TypeORM para filtrar
+      let where = {}
+      
+      if (desde && hasta) {
+        where = { fecha: Between(desde, hasta) } // Traer los registros cuya columna fecha esté entre esas dos fechas
+      } else if (desde) {
+        where = { fecha: MoreThanOrEqual(desde) } // Traer los registros con fecha >= desde
+      } else if (hasta) {
+        where = { fecha: LessThanOrEqual(hasta) } // Traer los registros con fecha <= hasta
+      }
+
+      // Consultar a la base de datos con el filtro de fecha
+      const registros = await this.imcRepository.find({
+        where,
+        order: { fecha: 'DESC' },
+      })
+
+      // Mapear entidades a DTOs
+      return registros.map((r) => ImcMapper.toDto(r))
+
+    } catch (error) {
+      console.error('Error en obtenerHistorialFiltrado:', error)
+      throw new InternalServerErrorException('Error al obtener el historial filtrado')
     }
   }
 }
