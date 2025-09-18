@@ -41,7 +41,7 @@ export class ImcService {
     }
   }
 
-  async obtenerHistorial(): Promise<(CalcularImcDto & { imc: number; categoria: string; fecha: Date })[]> {
+  async obtenerHistorial(): Promise<(CalcularImcDto & { imc: number; categoria: string; fecha: Date})[]> {
     try {
       // Obtener registros ordenados por fecha descendente
       const registros = await this.imcRepository.find({
