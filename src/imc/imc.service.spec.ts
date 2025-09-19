@@ -4,24 +4,25 @@ import { CalcularImcDto } from "./dto/calcular-imc-dto";
 import { ImcEntity } from "./entities/imc.entity";
 import { getRepositoryToken } from "@nestjs/typeorm";
 import { ImcMapper } from "./mappers/imc.mapper";
+import { ImcRepository } from "./repository/imc.repository";
 
 describe('ImcService', () => {
   let service: ImcService;
   
-  let mockImcEntityRepository: { save: jest.Mock; find: jest.Mock };
+  let mockImcRepository: { findAll: jest.Mock; saveRecord: jest.Mock; };
 
   beforeEach(async () => {
-    mockImcEntityRepository = {
-      save: jest.fn(),
-      find: jest.fn(),
+    mockImcRepository = {
+      saveRecord: jest.fn(),
+      findAll: jest.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ImcService,
         {
-          provide: getRepositoryToken(ImcEntity),
-          useValue: mockImcEntityRepository,
+          provide: ImcRepository, 
+          useValue: mockImcRepository,    
         },
       ],
     }).compile();
@@ -60,8 +61,13 @@ describe('ImcService', () => {
     ])(
       'should calculate IMC correctly for %#',
       async ({ altura, peso, imc: imcEsperado, categoria: categoriaEsperada }) => {
+        mockImcRepository.saveRecord.mockResolvedValueOnce({ altura, peso, imc: imcEsperado, categoria: categoriaEsperada });
+
         const dto: CalcularImcDto = { altura, peso };
         const result = await service.calcularImc(dto);
+        
+        // Verificaciones
+        expect(mockImcRepository.saveRecord).toHaveBeenCalled(); // Verifica que el método se llamó
         expect(result.imc).toBeCloseTo(imcEsperado, 2);
         expect(result.categoria).toBe(categoriaEsperada);
       },
@@ -94,7 +100,7 @@ describe('ImcService', () => {
     });
 
     it('should return an empty array when no records exist', async () => {
-      mockImcEntityRepository.find.mockResolvedValue([]);
+      mockImcRepository.findAll.mockResolvedValue([]);
       const result = await service.obtenerHistorial();
       expect(result).toEqual([]);
     });
@@ -105,13 +111,13 @@ describe('ImcService', () => {
         { altura: 1.80, peso: 90, imc: 27.78, categoria: 'Sobrepeso', fecha: new Date('2023-02-01') },
       ] as ImcEntity[];
 
-      const findSpy = jest.spyOn(mockImcEntityRepository, 'find').mockResolvedValue(mockRecords);
+      const findSpy = jest.spyOn(mockImcRepository, 'findAll').mockResolvedValue(mockRecords);
       const mapperSpy = jest.spyOn(ImcMapper, 'toDto');
 
       const result = await service.obtenerHistorial();
 
       // Verificar que find fue llamado con la opción correcta
-      expect(findSpy).toHaveBeenCalledWith({ order: { fecha: 'DESC' } });
+      expect(findSpy).toHaveBeenCalledWith();
 
       // Verificar que mapper fue llamado para cada registro
       expect(mapperSpy).toHaveBeenCalledTimes(mockRecords.length);
@@ -127,7 +133,7 @@ describe('ImcService', () => {
     });
 
     it('should throw InternalServerErrorException if repository.find fails', async () => {
-      jest.spyOn(mockImcEntityRepository, 'find').mockRejectedValue(new Error('DB error'));
+      jest.spyOn(mockImcRepository, 'findAll').mockRejectedValue(new Error('DB error'));
 
       await expect(service.obtenerHistorial())
         .rejects

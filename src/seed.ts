@@ -3,7 +3,7 @@ import { ImcEntity } from './imc/entities/imc.entity'; // Ajusta la ruta según 
 import { config } from 'dotenv';
 
 // Load environment variables
-config({ path:'.env.temp'});
+config({ path:'.env'});
 
 const databaseConfig = {
   host: process.env.DB_HOST || 'localhost',
@@ -12,7 +12,6 @@ const databaseConfig = {
   password: process.env.DB_PASSWORD || undefined,
   database: process.env.DB_NAME || 'imc_db',
 }
-
 
 // Configuración de TypeORM
 const AppDataSource = new DataSource({

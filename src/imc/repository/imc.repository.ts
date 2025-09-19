@@ -1,4 +1,4 @@
-import { Repository, DataSource } from 'typeorm';
+import { Repository, DataSource, FindManyOptions } from 'typeorm';
 import { ImcEntity } from '../entities/imc.entity';
 import { Injectable } from '@nestjs/common';
 import {
@@ -14,8 +14,8 @@ export class ImcRepository extends Repository<ImcEntity> {
     super(ImcEntity, dataSource.createEntityManager());
   }
 
-  async findAll(): Promise<ImcEntity[]> {
-    return this.find({order: { fecha: 'DESC' }});
+  async findAll(options?: FindManyOptions<ImcEntity>): Promise<ImcEntity[]> {
+    return this.find(options);
   }
 
   async paginate(options: IPaginationOptions): Promise<Pagination<ImcEntity>> {

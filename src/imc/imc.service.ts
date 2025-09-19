@@ -1,16 +1,14 @@
 import { Injectable, InternalServerErrorException } from "@nestjs/common";
-import { InjectRepository } from '@nestjs/typeorm';
-import { Between, LessThanOrEqual, MoreThanOrEqual, Repository } from 'typeorm';
+import { Between, LessThanOrEqual, MoreThanOrEqual } from 'typeorm';
 import { CalcularImcDto } from "./dto/calcular-imc-dto";
-import { ImcEntity } from "./entities/imc.entity";
 import { ImcMapper } from "./mappers/imc.mapper";
-
+import { ImcRepository } from './repository/imc.repository';
 
 @Injectable()
 export class ImcService {
   constructor(
-    @InjectRepository(ImcEntity)
-    private readonly imcRepository: Repository<ImcEntity>,
+
+    private readonly imcRepository: ImcRepository,
   ) {}
 
   async calcularImc(data: CalcularImcDto): Promise<{ imc: number; categoria: string }> {
@@ -32,7 +30,7 @@ export class ImcService {
 
       // Usar el mapper
       const imcRegistro = ImcMapper.toEntity(data, imcRedondeado, categoria);
-      await this.imcRepository.save(imcRegistro);
+      await this.imcRepository.saveRecord(imcRegistro);
 
       return { imc: imcRedondeado, categoria };
     } catch (error) {
@@ -44,9 +42,7 @@ export class ImcService {
   async obtenerHistorial(): Promise<(CalcularImcDto & { imc: number; categoria: string; fecha: Date})[]> {
     try {
       // Obtener registros ordenados por fecha descendente
-      const registros = await this.imcRepository.find({
-        order: { fecha: 'DESC' }, 
-      });
+      const registros = await this.imcRepository.findAll();
       // Mapear entidades a DTOs
       return registros.map((r) => ImcMapper.toDto(r)); // 
     } catch (error) {
@@ -67,9 +63,7 @@ export class ImcService {
       } else if (hasta) {
         where = { fecha: LessThanOrEqual(hasta) } // Traer los registros con fecha <= hasta
       }
-
-      // Consultar a la base de datos con el filtro de fecha
-      const registros = await this.imcRepository.find({
+      const registros = await this.imcRepository.findAll({
         where,
         order: { fecha: 'DESC' },
       })
