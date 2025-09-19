@@ -2,7 +2,6 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { ImcService } from "./imc.service";
 import { CalcularImcDto } from "./dto/calcular-imc-dto";
 import { ImcEntity } from "./entities/imc.entity";
-import { getRepositoryToken } from "@nestjs/typeorm";
 import { ImcMapper } from "./mappers/imc.mapper";
 import { ImcRepository } from "./repository/imc.repository";
 
