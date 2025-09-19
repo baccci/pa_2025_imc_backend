@@ -1,17 +1,16 @@
 import { Injectable, InternalServerErrorException } from "@nestjs/common";
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Between, LessThanOrEqual, MoreThanOrEqual } from 'typeorm';
 import { CalcularImcDto } from "./dto/calcular-imc-dto";
-import { ImcEntity } from "./entities/imc.entity";
 import { ImcMapper } from "./mappers/imc.mapper";
-
+import { ImcRepository } from './repository/imc.repository';
+import { paginate as pg } from 'nestjs-typeorm-paginate';
 
 @Injectable()
 export class ImcService {
   constructor(
-    @InjectRepository(ImcEntity)
-    private readonly imcRepository: Repository<ImcEntity>,
-  ) {}
+
+    private readonly imcRepository: ImcRepository,
+  ) { }
 
   async calcularImc(data: CalcularImcDto): Promise<{ imc: number; categoria: string }> {
     try {
@@ -32,7 +31,7 @@ export class ImcService {
 
       // Usar el mapper
       const imcRegistro = ImcMapper.toEntity(data, imcRedondeado, categoria);
-      await this.imcRepository.save(imcRegistro);
+      await this.imcRepository.saveRecord(imcRegistro);
 
       return { imc: imcRedondeado, categoria };
     } catch (error) {
@@ -44,14 +43,88 @@ export class ImcService {
   async obtenerHistorial(): Promise<(CalcularImcDto & { imc: number; categoria: string; fecha: Date })[]> {
     try {
       // Obtener registros ordenados por fecha descendente
-      const registros = await this.imcRepository.find({
-        order: { fecha: 'DESC' }, 
-      });
+      const registros = await this.imcRepository.findAll();
       // Mapear entidades a DTOs
       return registros.map((r) => ImcMapper.toDto(r)); // 
     } catch (error) {
       console.error('Error en obtenerHistorial:', error);
       throw new InternalServerErrorException('Error al obtener el historial de IMC');
+    }
+  }
+
+  async obtenerHistorialFiltrado(desde?: Date, hasta?: Date) {
+    try {
+      // Crear un objeto where que luego se pasa a TypeORM para filtrar
+      let where = {}
+
+      if (desde && hasta) {
+        where = { fecha: Between(desde, hasta) } // Traer los registros cuya columna fecha esté entre esas dos fechas
+      } else if (desde) {
+        where = { fecha: MoreThanOrEqual(desde) } // Traer los registros con fecha >= desde
+      } else if (hasta) {
+        where = { fecha: LessThanOrEqual(hasta) } // Traer los registros con fecha <= hasta
+      }
+      const registros = await this.imcRepository.findAll({
+        where,
+        order: { fecha: 'DESC' },
+      })
+
+      // Mapear entidades a DTOs
+      return registros.map((r) => ImcMapper.toDto(r))
+
+    } catch (error) {
+      console.error('Error en obtenerHistorialFiltrado:', error)
+      throw new InternalServerErrorException('Error al obtener el historial filtrado')
+    }
+  }
+
+  async paginate(desde?: Date, hasta?: Date, page: number = 1, limit: number = 10) {
+    try {
+      const qb = this.imcRepository.createQueryBuilder('imc')
+        .orderBy('imc.fecha', 'DESC');
+
+      if (desde && hasta) {
+        qb.andWhere('imc.fecha BETWEEN :desde AND :hasta', { desde, hasta });
+      } else if (desde) {
+        qb.andWhere('imc.fecha >= :desde', { desde });
+      } else if (hasta) {
+        qb.andWhere('imc.fecha <= :hasta', { hasta });
+      }
+
+      const pagination = await pg(qb, {
+        page,
+        limit,
+        route: '/imc/historial',
+      });
+
+      const mappedItems = pagination.items.map((r) => ImcMapper.toDto(r));
+
+      return {
+        ...pagination,
+        items: mappedItems,
+      };
+    } catch (error) {
+      console.error('Error en paginate:', error)
+      throw new InternalServerErrorException('Error al paginar el historial de IMC')
+    }
+  }
+
+  async obtenerHistorialCantidad(desde?: Date, hasta?: Date) {
+    try {
+      if (desde || hasta) {
+        const registros = await this.obtenerHistorialFiltrado(desde, hasta)
+        return {
+          count: registros.length
+        }
+      }
+
+      const registros = await this.obtenerHistorial()
+      return {
+        count: registros.length
+      }
+    } catch (error) {
+      console.error('Error en obtenerHistorialCantidad:', error)
+      throw new InternalServerErrorException('Error al obtener la cantidad de registros')
     }
   }
 }

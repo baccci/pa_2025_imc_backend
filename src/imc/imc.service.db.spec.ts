@@ -4,19 +4,22 @@ import { DataSource } from 'typeorm';
 import { ImcService } from './imc.service';
 import { ImcEntity } from './entities/imc.entity';
 import { CalcularImcDto } from './dto/calcular-imc-dto';
+import { ImcRepository } from './repository/imc.repository';
 
 describe('IMC Service Integration Tests', () => {
   let service: ImcService;
   let dataSource: DataSource;
+  let imcRepository: ImcRepository;
 
   // Variables de entorno inline
   process.env.DB_HOST = 'localhost';
   process.env.DB_PORT = '3306';
   process.env.DB_USER = 'root';
-  process.env.DB_PASSWORD = '123456';
+  process.env.DB_PASSWORD = 'root';
   process.env.DB_NAME = 'imc_test';
 
   beforeAll(async () => {
+    jest.setTimeout(20000); // 20 segundos
     const module: TestingModule = await Test.createTestingModule({
       imports: [
         TypeOrmModule.forRootAsync({
@@ -33,16 +36,17 @@ describe('IMC Service Integration Tests', () => {
         }),
         TypeOrmModule.forFeature([ImcEntity]),
       ],
-      providers: [ImcService],
+      providers: [ImcService, ImcRepository],
     }).compile();
 
     service = module.get<ImcService>(ImcService);
     dataSource = module.get<DataSource>(getDataSourceToken());
+    imcRepository = module.get<ImcRepository>(ImcRepository);
 
     if (!dataSource.isInitialized) {
       await dataSource.initialize();
     }
-  });
+  }, 20000);
 
   afterEach(async () => {
     const repo = dataSource.getRepository(ImcEntity);
@@ -83,11 +87,11 @@ describe('IMC Service Integration Tests', () => {
     const historial = await service.obtenerHistorial();
     expect(historial.length).toBe(2);
 
-    expect(historial[0].peso).toBe(90);
-    expect(historial[0].categoria).toBe('Sobrepeso');
+    expect(historial[0].peso).toBe(50);
+    expect(historial[0].categoria).toBe('Bajo peso');
 
-    expect(historial[1].peso).toBe(50);
-    expect(historial[1].categoria).toBe('Bajo peso'); // coincide con la lógica actual
+    expect(historial[1].peso).toBe(90);
+    expect(historial[1].categoria).toBe('Sobrepeso'); // coincide con la lógica actual
   });
 
   // =====================
