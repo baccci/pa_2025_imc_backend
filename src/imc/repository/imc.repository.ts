@@ -2,7 +2,7 @@ import { Repository, DataSource, FindManyOptions } from 'typeorm';
 import { ImcEntity } from '../entities/imc.entity';
 import { Injectable } from '@nestjs/common';
 import {
-  paginate,
+  paginate as pg,
   Pagination,
   IPaginationOptions,
 } from 'nestjs-typeorm-paginate';
@@ -19,7 +19,7 @@ export class ImcRepository extends Repository<ImcEntity> {
   }
 
   async paginate(options: IPaginationOptions): Promise<Pagination<ImcEntity>> {
-    return paginate<ImcEntity>(this, options);
+    return pg<ImcEntity>(this, options);
   }
 
   async saveRecord(entity: ImcEntity): Promise<ImcEntity> {

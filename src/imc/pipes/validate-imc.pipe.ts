@@ -22,7 +22,7 @@ export class ValidateImcPipe implements PipeTransform {
       if (isNaN(altura) || !isFinite(altura) || isNaN(peso) || !isFinite(peso)) {
         throw new BadRequestException('Altura y peso deben ser números válidos.');
       }
-    
+
       // Validar rangos
       if (altura <= 0 || altura > 3) {
         throw new BadRequestException('La altura debe estar entre 0 y 3 metros.');
@@ -33,14 +33,14 @@ export class ValidateImcPipe implements PipeTransform {
 
       // Devolver el objeto validado con altura y peso como números
       return { altura, peso };
-    } 
+    }
     catch (error) {
       //console.error('Error en ValidateImcPipe:', error);
-      
+
       if (error instanceof BadRequestException) {
         throw error; // mantener el mensaje específico
       }
-        
+
       // Para cualquier otro error, lanzar un mensaje genérico
       throw new BadRequestException('Error inesperado durante la validación del IMC.');
     }
