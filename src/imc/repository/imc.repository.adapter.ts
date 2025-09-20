@@ -1,15 +1,14 @@
-/*import { Repository, DataSource, FindManyOptions } from 'typeorm';
+import { Repository, DataSource, FindManyOptions } from 'typeorm';
 import { ImcEntity } from '../entities/imc.entity';
 import { Injectable } from '@nestjs/common';
-import {
-  paginate as pg,
-  Pagination,
-  IPaginationOptions,
-} from 'nestjs-typeorm-paginate';
-
+import { IImcRepository } from './imc.repository.interface';
+import { paginate as pg, Pagination, IPaginationOptions } from 'nestjs-typeorm-paginate';
 
 @Injectable()
-export class ImcRepository extends Repository<ImcEntity> {
+export class ImcRepositoryAdapter
+  extends Repository<ImcEntity>
+  implements IImcRepository
+{
   constructor(private dataSource: DataSource) {
     super(ImcEntity, dataSource.createEntityManager());
   }
@@ -25,4 +24,4 @@ export class ImcRepository extends Repository<ImcEntity> {
   async saveRecord(entity: ImcEntity): Promise<ImcEntity> {
     return this.save(entity);
   }
-}*/
+}
