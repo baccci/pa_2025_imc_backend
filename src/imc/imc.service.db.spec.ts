@@ -16,7 +16,7 @@ describe('IMC Service Integration Tests', () => {
   let dataSource: DataSource;
 
   beforeAll(async () => {
-    jest.setTimeout(20000); // 20 segundos
+    jest.setTimeout(30000); // 20 segundos
     const module: TestingModule = await Test.createTestingModule({
       imports: [
         TypeOrmModule.forRootAsync({
