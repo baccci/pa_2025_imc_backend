@@ -4,13 +4,12 @@ import { CalcularImcDto } from "./dto/calcular-imc-dto";
 import { ImcMapper } from "./mappers/imc.mapper";
 import { IImcRepository } from "./repository/imc.repository.interface";
 import { paginate as pg } from 'nestjs-typeorm-paginate';
-import { HistorialImcDto } from "./dto/historial-imc-dto";
+import { HistorialImcResponse } from "./dto/historial-imc-dto";
 import { Inject } from "@nestjs/common";
 
 @Injectable()
 export class ImcService {
   constructor(
-
     @Inject('IImcRepository') private readonly imcRepository: IImcRepository,
   ) { }
 
@@ -42,7 +41,7 @@ export class ImcService {
     }
   }
 
-  async obtenerHistorial(): Promise<(HistorialImcDto)[]> {
+  async obtenerHistorial(): Promise<(HistorialImcResponse)[]> {
     try {
       // Obtener registros ordenados por fecha descendente
       const registros = await this.imcRepository.findAll();
