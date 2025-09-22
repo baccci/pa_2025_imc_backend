@@ -24,7 +24,7 @@ import { envSchema } from './env/env-schema';
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
-        type: 'mysql',
+        type: 'postgres',
         host: configService.get(CONFIG_KEYS.DB_HOST),
         port: parseInt(configService.get(CONFIG_KEYS.DB_PORT) ?? '3306', 10),
         username: configService.get(CONFIG_KEYS.DB_USER),
