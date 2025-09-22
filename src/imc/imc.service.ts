@@ -56,15 +56,8 @@ export class ImcService {
   async obtenerHistorialFiltrado(desde?: Date, hasta?: Date) {
     try {
       // Crear un objeto where que luego se pasa a TypeORM para filtrar
-      let where = {}
+      const where = generateDateFilterQuery(desde, hasta)
 
-      if (desde && hasta) {
-        where = { fecha: Between(desde, hasta) } // Traer los registros cuya columna fecha esté entre esas dos fechas
-      } else if (desde) {
-        where = { fecha: MoreThanOrEqual(desde) } // Traer los registros con fecha >= desde
-      } else if (hasta) {
-        where = { fecha: LessThanOrEqual(hasta) } // Traer los registros con fecha <= hasta
-      }
       const registros = await this.imcRepository.findAll({
         where,
         order: { fecha: 'DESC' },
@@ -130,3 +123,18 @@ export class ImcService {
   }
 }
 
+function generateDateFilterQuery(desde?: Date, hasta?: Date) {
+  if (desde && hasta) {
+    return { fecha: Between(desde, hasta) }
+  }
+
+  if (desde) {
+    return { fecha: MoreThanOrEqual(desde) }
+  }
+
+  if (hasta) {
+    return { fecha: LessThanOrEqual(hasta) }
+  }
+
+  return {}
+}
