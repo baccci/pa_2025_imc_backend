@@ -1,16 +1,19 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsNumber, Max, Min } from 'class-validator';
 
-export class CalcularImcDto {
+export class CreateHistorialImcDto {
+  @ApiProperty({ example: 1.6, description: 'Altura en metros (0–3)' })
   @Type(() => Number)
   @IsNumber(
     { allowNaN: false, allowInfinity: false },
     { message: 'La altura debe ser un número válido' },
   )
-  @Min(0, { message: 'La altura debe ser mayor a 0 metros' }) // Altura mínima razonable
-  @Max(3, { message: 'La altura no puede ser mayor a 3 metros' }) // Altura máxima razonable
+  @Min(0, { message: 'La altura debe ser mayor a 0 metros' })
+  @Max(3, { message: 'La altura no puede ser mayor a 3 metros' })
   altura!: number;
 
+  @ApiProperty({ example: 90, description: 'Peso en kilogramos (0–500)' })
   @Type(() => Number)
   @IsNumber(
     { allowNaN: false, allowInfinity: false },

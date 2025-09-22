@@ -1,28 +1,18 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
-import { IsDate, IsNumber, IsString } from 'class-validator';
 
-export class HistorialImcDto {
-    @ApiProperty({ example: 1.6, description: 'Altura en metros' })
-    @Type(() => Number)
-    @IsNumber()
-    altura: number;
+export class HistorialImcResponse {
+  @ApiProperty({ example: 1.6, description: 'Altura en metros' })
+  altura!: number;
 
-    @ApiProperty({ example: 90, description: 'Peso en kilogramos' })
-    @Type(() => Number)
-    @IsNumber()
-    peso: number;
+  @ApiProperty({ example: 90, description: 'Peso en kilogramos' })
+  peso!: number;
 
-    @Type(() => Date)
-    @IsDate()
-    fecha: Date;
+  @ApiProperty({ example: '2025-09-22T18:21:00.000Z', description: 'Fecha de registro (ISO)' })
+  fecha!: Date;
 
-    @ApiProperty({ example: 'Obeso', description: 'Categoría del IMC' })
-    @IsString()
-    categoria: string;
+  @ApiProperty({ example: 'Obeso', description: 'Categoría del IMC' })
+  categoria!: string;
 
-    @ApiProperty({ example: 25.16, description: 'Índice de Masa Corporal (IMC)' })
-    @Type(() => Number)
-    @IsNumber()
-    imc: number;
+  @ApiProperty({ example: 25.16, description: 'Índice de Masa Corporal calculado' })
+  imc!: number;
 }
