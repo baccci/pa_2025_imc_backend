@@ -4,19 +4,16 @@ import { DataSource } from 'typeorm';
 import { ImcService } from './imc.service';
 import { ImcEntity } from './entities/imc.entity';
 import { CalcularImcDto } from './dto/calcular-imc-dto';
+import * as dotenv from 'dotenv';
 import { ImcRepository } from './repository/imc.repository';
+
+// Load environment variables from the specific test file
+dotenv.config({ path: './.env.test.local' });
+
 
 describe('IMC Service Integration Tests', () => {
   let service: ImcService;
   let dataSource: DataSource;
-  let imcRepository: ImcRepository;
-
-  // Variables de entorno inline
-  process.env.DB_HOST = 'localhost';
-  process.env.DB_PORT = '3306';
-  process.env.DB_USER = 'root';
-  process.env.DB_PASSWORD = 'root';
-  process.env.DB_NAME = 'imc_test';
 
   beforeAll(async () => {
     jest.setTimeout(20000); // 20 segundos
@@ -36,12 +33,14 @@ describe('IMC Service Integration Tests', () => {
         }),
         TypeOrmModule.forFeature([ImcEntity]),
       ],
-      providers: [ImcService, ImcRepository],
+      providers: [ImcService, {
+        provide: 'IImcRepository',
+        useClass: ImcRepository,
+      }],
     }).compile();
 
     service = module.get<ImcService>(ImcService);
     dataSource = module.get<DataSource>(getDataSourceToken());
-    imcRepository = module.get<ImcRepository>(ImcRepository);
 
     if (!dataSource.isInitialized) {
       await dataSource.initialize();

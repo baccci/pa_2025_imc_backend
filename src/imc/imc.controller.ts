@@ -1,7 +1,8 @@
-import { Controller, Post, Get, Body, UsePipes, Query, ParseIntPipe, DefaultValuePipe } from '@nestjs/common';
+import { Controller, Post, Get, Body, UsePipes, Query} from '@nestjs/common';
 import { ImcService } from './imc.service';
 import { CalcularImcDto } from './dto/calcular-imc-dto';
 import { ValidateImcPipe } from './pipes/validate-imc.pipe';
+import { PaginationImcDto } from './dto/pagination-imc.dto';
 
 @Controller('imc')
 export class ImcController {
@@ -23,27 +24,22 @@ export class ImcController {
   @Get('historial')
   async obtenerHistorial(
     // Definir Query Params, en el caso en que no estén trae el historial completo
-    @Query('desde') desde?: string,
-    @Query('hasta') hasta?: string,
-    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number = 1,
-    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number = 10,
-  ) {
+    @Query() PaginationImcDto: PaginationImcDto) {
+    const { desde, hasta, page, limit } = PaginationImcDto;
     return this.imcService.paginate(
-      desde ? new Date(desde) : undefined,
-      hasta ? new Date(hasta) : undefined,
-      page,
-      limit,
+      desde, hasta, page, limit
     );
   }
-
+/*
   @Get('historial-cantidad')
   async obtenerHistorialCantidad(
-    @Query('desde') desde?: string,
-    @Query('hasta') hasta?: string,
+    @Query() 
   ) {
     return this.imcService.obtenerHistorialCantidad(
       desde ? new Date(desde) : undefined,
       hasta ? new Date(hasta) : undefined,
     )
   }
+}
+*/
 }

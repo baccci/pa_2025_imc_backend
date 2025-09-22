@@ -2,14 +2,15 @@ import { Injectable, InternalServerErrorException } from "@nestjs/common";
 import { Between, LessThanOrEqual, MoreThanOrEqual } from 'typeorm';
 import { CalcularImcDto } from "./dto/calcular-imc-dto";
 import { ImcMapper } from "./mappers/imc.mapper";
-import { ImcRepository } from './repository/imc.repository';
+import { IImcRepository } from "./repository/imc.repository.interface";
 import { paginate as pg } from 'nestjs-typeorm-paginate';
+import { HistorialImcResponse } from "./dto/historial-imc-dto";
+import { Inject } from "@nestjs/common";
 
 @Injectable()
 export class ImcService {
   constructor(
-
-    private readonly imcRepository: ImcRepository,
+    @Inject('IImcRepository') private readonly imcRepository: IImcRepository,
   ) { }
 
   async calcularImc(data: CalcularImcDto): Promise<{ imc: number; categoria: string }> {
@@ -40,7 +41,7 @@ export class ImcService {
     }
   }
 
-  async obtenerHistorial(): Promise<(CalcularImcDto & { imc: number; categoria: string; fecha: Date })[]> {
+  async obtenerHistorial(): Promise<(HistorialImcResponse)[]> {
     try {
       // Obtener registros ordenados por fecha descendente
       const registros = await this.imcRepository.findAll();
@@ -55,15 +56,8 @@ export class ImcService {
   async obtenerHistorialFiltrado(desde?: Date, hasta?: Date) {
     try {
       // Crear un objeto where que luego se pasa a TypeORM para filtrar
-      let where = {}
+      const where = generateDateFilterQuery(desde, hasta)
 
-      if (desde && hasta) {
-        where = { fecha: Between(desde, hasta) } // Traer los registros cuya columna fecha esté entre esas dos fechas
-      } else if (desde) {
-        where = { fecha: MoreThanOrEqual(desde) } // Traer los registros con fecha >= desde
-      } else if (hasta) {
-        where = { fecha: LessThanOrEqual(hasta) } // Traer los registros con fecha <= hasta
-      }
       const registros = await this.imcRepository.findAll({
         where,
         order: { fecha: 'DESC' },
@@ -129,3 +123,18 @@ export class ImcService {
   }
 }
 
+function generateDateFilterQuery(desde?: Date, hasta?: Date) {
+  if (desde && hasta) {
+    return { fecha: Between(desde, hasta) }
+  }
+
+  if (desde) {
+    return { fecha: MoreThanOrEqual(desde) }
+  }
+
+  if (hasta) {
+    return { fecha: LessThanOrEqual(hasta) }
+  }
+
+  return {}
+}
