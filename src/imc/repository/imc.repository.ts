@@ -1,4 +1,4 @@
-/*import { Repository, DataSource, FindManyOptions } from 'typeorm';
+import { Repository, DataSource, FindManyOptions } from 'typeorm';
 import { ImcEntity } from '../entities/imc.entity';
 import { Injectable } from '@nestjs/common';
 import {
@@ -25,4 +25,4 @@ export class ImcRepository extends Repository<ImcEntity> {
   async saveRecord(entity: ImcEntity): Promise<ImcEntity> {
     return this.save(entity);
   }
-}*/
+}
