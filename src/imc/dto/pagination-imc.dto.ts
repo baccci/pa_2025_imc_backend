@@ -2,19 +2,19 @@ import { Type } from 'class-transformer';
 import { IsNumber, IsOptional } from 'class-validator';
 
 export class PaginationImcDto {
-    @IsOptional()
-    desde?: Date;
+  @IsOptional()
+  desde?: Date;
 
-    @IsOptional()
-    hasta?: Date;
+  @IsOptional()
+  hasta?: Date;
 
-    @IsOptional()
-    @Type(() => Number)
-    @IsNumber()
-    page?: number = 1;
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  page?: number = 1;
 
-    @IsOptional()
-    @Type(() => Number)
-    @IsNumber()
-    limit?: number = 10;
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  limit?: number = 10;
 }

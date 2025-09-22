@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Body, UsePipes, Query} from '@nestjs/common';
+import { Controller, Post, Get, Body, UsePipes, Query } from '@nestjs/common';
 import { ImcService } from './imc.service';
 import { CalcularImcDto } from './dto/calcular-imc-dto';
 import { ValidateImcPipe } from './pipes/validate-imc.pipe';
@@ -30,16 +30,4 @@ export class ImcController {
       desde, hasta, page, limit
     );
   }
-/*
-  @Get('historial-cantidad')
-  async obtenerHistorialCantidad(
-    @Query() 
-  ) {
-    return this.imcService.obtenerHistorialCantidad(
-      desde ? new Date(desde) : undefined,
-      hasta ? new Date(hasta) : undefined,
-    )
-  }
-}
-*/
 }

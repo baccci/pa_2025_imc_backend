@@ -4,7 +4,7 @@ export const CONFIG_KEYS = {
   DB_USER: 'DB_USER',
   DB_PASSWORD: 'DB_PASSWORD',
   DB_NAME: 'DB_NAME',
-  ORIGIN: 'ORIGIN',
+  ORIGIN: 'ORIGIN'
 } as const;
 
 // Type for the keys

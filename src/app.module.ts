@@ -30,6 +30,7 @@ import { envSchema } from './env/env-schema';
         username: configService.get(CONFIG_KEYS.DB_USER),
         password: configService.get(CONFIG_KEYS.DB_PASSWORD),
         database: configService.get(CONFIG_KEYS.DB_NAME),
+        ssl: true,
         autoLoadEntities: true,
         synchronize: !isProduction(),
       }),
