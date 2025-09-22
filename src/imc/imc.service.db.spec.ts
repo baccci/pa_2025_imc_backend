@@ -4,8 +4,8 @@ import { DataSource } from 'typeorm';
 import { ImcService } from './imc.service';
 import { ImcEntity } from './entities/imc.entity';
 import { CalcularImcDto } from './dto/calcular-imc-dto';
-import { ImcRepository } from './repository/imc.repository';
 import * as dotenv from 'dotenv';
+import { ImcRepository } from './repository/imc.repository';
 
 // Load environment variables from the specific test file
 dotenv.config({ path: './.env.test.local' });
@@ -33,7 +33,10 @@ describe('IMC Service Integration Tests', () => {
         }),
         TypeOrmModule.forFeature([ImcEntity]),
       ],
-      providers: [ImcService, ImcRepository],
+      providers: [ImcService, {
+        provide: 'IImcRepository',
+        useClass: ImcRepository,
+      }],
     }).compile();
 
     service = module.get<ImcService>(ImcService);
