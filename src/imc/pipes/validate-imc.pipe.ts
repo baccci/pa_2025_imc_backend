@@ -5,12 +5,14 @@ export class ValidateImcPipe implements PipeTransform {
   transform(value: unknown): { altura: number; peso: number } {
     try {
       // Validación inicial: verificar que el valor sea un objeto no nulo
-      if (!value || typeof value !== 'object') {
+      const isInvalidObject = !value || typeof value !== 'object';
+      if (isInvalidObject) {
         throw new BadRequestException('Se deben proporcionar datos válidos para el cálculo del IMC.');
       }
 
       // Verificar que altura y peso existan en el objeto
-      if (!('altura' in value) || !('peso' in value)) {
+      const missingFields = !('altura' in value) || !('peso' in value);
+      if (missingFields) {
         throw new BadRequestException('Se requieren los campos "altura" y "peso".');
       }
 
@@ -19,7 +21,9 @@ export class ValidateImcPipe implements PipeTransform {
       const peso = Number(value.peso);
 
       // Validar que no sean NaN ni Infinity
-      if (isNaN(altura) || !isFinite(altura) || isNaN(peso) || !isFinite(peso)) {
+      const invalidHeight = isNaN(altura) || !isFinite(altura);
+      const invalidWeight = isNaN(peso) || !isFinite(peso);
+      if (invalidHeight || invalidWeight) {
         throw new BadRequestException('Altura y peso deben ser números válidos.');
       }
 
