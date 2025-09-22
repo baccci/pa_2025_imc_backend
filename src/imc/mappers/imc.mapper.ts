@@ -1,5 +1,6 @@
 import { ImcEntity } from '../entities/imc.entity';
 import { CalcularImcDto } from '../dto/calcular-imc-dto';
+import { HistorialImcResponse } from '../dto/historial-imc-dto';
 
 export class ImcMapper {
   static toEntity(dto: CalcularImcDto, imc: number, categoria: string): ImcEntity {
@@ -12,13 +13,15 @@ export class ImcMapper {
     return entity;
   }
 
-  static toDto(entity: ImcEntity): CalcularImcDto & { imc: number; categoria: string; fecha: Date } {
-    return {
-      peso: entity.peso,
-      altura: entity.altura,
-      imc: entity.imc,
-      categoria: entity.categoria,
-      fecha: entity.fecha,
-    };
+  static toDto(entity: ImcEntity): HistorialImcResponse {
+    const dtoImc = new HistorialImcResponse();
+
+    dtoImc.peso = entity.peso;
+    dtoImc.altura = entity.altura;
+    dtoImc.imc = entity.imc;
+    dtoImc.categoria = entity.categoria;
+    dtoImc.fecha = entity.fecha;
+    
+    return dtoImc;
   }
 }
