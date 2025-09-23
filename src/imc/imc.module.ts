@@ -4,7 +4,6 @@ import { ImcController } from './imc.controller';
 import { ImcEntity } from './entities/imc.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ImcRepository } from './repository/imc.repository';
-import { ValidateImcPipe } from './pipes/validate-imc.pipe';
 
 @Module({
   imports: [TypeOrmModule.forFeature([ImcEntity])],
@@ -14,7 +13,6 @@ import { ValidateImcPipe } from './pipes/validate-imc.pipe';
     {
     provide: 'IImcRepository',
     useClass: ImcRepository,
-  },
-],
+  }],
 })
 export class ImcModule {}

@@ -22,6 +22,7 @@ describe('ImcService', () => {
         ImcService,
         {
           provide: 'IImcRepository', 
+          provide: 'IImcRepository', 
           useValue: mockImcRepository,    
         },
       ],
