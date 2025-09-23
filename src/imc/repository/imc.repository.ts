@@ -1,4 +1,4 @@
-/*import { Repository, DataSource, FindManyOptions } from 'typeorm';
+import { Repository, DataSource, FindManyOptions, SelectQueryBuilder  } from 'typeorm';
 import { ImcEntity } from '../entities/imc.entity';
 import { Injectable } from '@nestjs/common';
 import {
@@ -6,10 +6,13 @@ import {
   Pagination,
   IPaginationOptions,
 } from 'nestjs-typeorm-paginate';
-
+import { IImcRepository } from './imc.repository.interface';
 
 @Injectable()
-export class ImcRepository extends Repository<ImcEntity> {
+export class ImcRepository
+  extends Repository<ImcEntity>
+  implements IImcRepository
+{
   constructor(private dataSource: DataSource) {
     super(ImcEntity, dataSource.createEntityManager());
   }
@@ -25,4 +28,8 @@ export class ImcRepository extends Repository<ImcEntity> {
   async saveRecord(entity: ImcEntity): Promise<ImcEntity> {
     return this.save(entity);
   }
-}*/
+
+  createQueryBuilder(alias: string): SelectQueryBuilder<ImcEntity> {
+    return super.createQueryBuilder(alias);
+  }
+}

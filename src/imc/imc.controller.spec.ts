@@ -51,6 +51,7 @@ describe('ImcController', () => {
   
   it('should throw BadRequestException for invalid input', async () => {
     const invalidDto: CalcularImcDto = { altura: -1, peso: 70 };
+    const serviceSpy = jest.spyOn(service, 'calcularImc');
 
     // Aplicar ValidationPipe manualmente en la prueba
     const validationPipe = new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true });
@@ -59,11 +60,12 @@ describe('ImcController', () => {
       .rejects.toThrow(BadRequestException);
 
     // Verificar que el servicio no se llama porque la validación falla antes
-    expect(service.calcularImc).not.toHaveBeenCalled();
+    expect(serviceSpy).not.toHaveBeenCalled();
   });
 
   it('should throw BadRequestException for invalid input', async () => {
     const invalidDto: CalcularImcDto = { altura: 1.60, peso: -1 };
+    const serviceSpy = jest.spyOn(service, 'calcularImc');
 
     // Aplicar ValidationPipe manualmente en la prueba
     const validationPipe = new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true });
@@ -72,6 +74,6 @@ describe('ImcController', () => {
       .rejects.toThrow(BadRequestException);
 
     // Verificar que el servicio no se llama porque la validación falla antes
-    expect(service.calcularImc).not.toHaveBeenCalled();
+    expect(serviceSpy).not.toHaveBeenCalled();
   });
 });
