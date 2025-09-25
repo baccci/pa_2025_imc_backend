@@ -24,12 +24,10 @@ import { envSchema } from './env/env-schema';
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
-        type: 'postgres',
-        host: configService.get(CONFIG_KEYS.DB_HOST),
-        port: parseInt(configService.get(CONFIG_KEYS.DB_PORT) ?? '5432', 10),
-        username: configService.get(CONFIG_KEYS.DB_USER),
-        password: configService.get(CONFIG_KEYS.DB_PASSWORD),
-        database: configService.get(CONFIG_KEYS.DB_NAME),
+        type: 'mongodb',
+        url: configService.get(CONFIG_KEYS.DB_URL),
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
         ssl: true,
         autoLoadEntities: true,
         synchronize: !isProduction(),

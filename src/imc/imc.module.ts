@@ -9,7 +9,6 @@ import { ImcRepository } from './repository/imc.repository';
   imports: [TypeOrmModule.forFeature([ImcEntity])],
   controllers: [ImcController],
   providers: [ImcService,
-    ValidateImcPipe,
     {
     provide: 'IImcRepository',
     useClass: ImcRepository,

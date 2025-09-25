@@ -1,10 +1,8 @@
 import { Injectable, InternalServerErrorException } from "@nestjs/common";
-import { Between, LessThanOrEqual, MoreThanOrEqual } from 'typeorm';
 import { CalcularImcDto } from "./dto/calcular-imc-dto";
 import { ImcMapper } from "./mappers/imc.mapper";
 import { IImcRepository } from "./repository/imc.repository.interface";
 import { paginate as pg } from 'nestjs-typeorm-paginate';
-import { HistorialImcResponse } from "./dto/historial-imc-dto";
 import { Inject } from "@nestjs/common";
 
 @Injectable()
@@ -41,49 +39,9 @@ export class ImcService {
     }
   }
 
-  async obtenerHistorial(): Promise<(HistorialImcResponse)[]> {
-    try {
-      // Obtener registros ordenados por fecha descendente
-      const registros = await this.imcRepository.findAll();
-      // Mapear entidades a DTOs
-      return registros.map((r) => ImcMapper.toDto(r)); // 
-    } catch (error) {
-      console.error('Error en obtenerHistorial:', error);
-      throw new InternalServerErrorException('Error al obtener el historial de IMC');
-    }
-  }
-
-  async obtenerHistorialFiltrado(desde?: Date, hasta?: Date) {
-    try {
-      // Crear un objeto where que luego se pasa a TypeORM para filtrar
-      const where = generateDateFilterQuery(desde, hasta)
-
-      const registros = await this.imcRepository.findAll({
-        where,
-        order: { fecha: 'DESC' },
-      })
-
-      // Mapear entidades a DTOs
-      return registros.map((r) => ImcMapper.toDto(r))
-
-    } catch (error) {
-      console.error('Error en obtenerHistorialFiltrado:', error)
-      throw new InternalServerErrorException('Error al obtener el historial filtrado')
-    }
-  }
-
   async paginate(desde?: Date, hasta?: Date, page: number = 1, limit: number = 10) {
     try {
-      const qb = this.imcRepository.createQueryBuilder('imc')
-        .orderBy('imc.fecha', 'DESC');
-
-      if (desde && hasta) {
-        qb.andWhere('imc.fecha BETWEEN :desde AND :hasta', { desde, hasta });
-      } else if (desde) {
-        qb.andWhere('imc.fecha >= :desde', { desde });
-      } else if (hasta) {
-        qb.andWhere('imc.fecha <= :hasta', { hasta });
-      }
+      const qb = this.imcRepository.findByFechas(desde, hasta);
 
       const pagination = await pg(qb, {
         page,
@@ -103,38 +61,4 @@ export class ImcService {
     }
   }
 
-  async obtenerHistorialCantidad(desde?: Date, hasta?: Date) {
-    try {
-      if (desde || hasta) {
-        const registros = await this.obtenerHistorialFiltrado(desde, hasta)
-        return {
-          count: registros.length
-        }
-      }
-
-      const registros = await this.obtenerHistorial()
-      return {
-        count: registros.length
-      }
-    } catch (error) {
-      console.error('Error en obtenerHistorialCantidad:', error)
-      throw new InternalServerErrorException('Error al obtener la cantidad de registros')
-    }
-  }
-}
-
-function generateDateFilterQuery(desde?: Date, hasta?: Date) {
-  if (desde && hasta) {
-    return { fecha: Between(desde, hasta) }
-  }
-
-  if (desde) {
-    return { fecha: MoreThanOrEqual(desde) }
-  }
-
-  if (hasta) {
-    return { fecha: LessThanOrEqual(hasta) }
-  }
-
-  return {}
 }
