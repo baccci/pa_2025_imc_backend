@@ -1,4 +1,4 @@
-import { Repository, DataSource, FindManyOptions, SelectQueryBuilder  } from 'typeorm';
+import { Repository, DataSource, FindManyOptions } from 'typeorm';
 import { ImcEntity } from '../entities/imc.entity';
 import { Injectable } from '@nestjs/common';
 import {
@@ -21,15 +21,11 @@ export class ImcRepository
     return this.find(options);
   }
 
-  async paginate(options: IPaginationOptions): Promise<Pagination<ImcEntity>> {
-    return pg<ImcEntity>(this, options);
+  async paginate(options: IPaginationOptions, findOptions?: FindManyOptions<ImcEntity>): Promise<Pagination<ImcEntity>> {
+    return pg<ImcEntity>(this, options, findOptions);
   }
 
   async saveRecord(entity: ImcEntity): Promise<ImcEntity> {
     return this.save(entity);
-  }
-
-  createQueryBuilder(alias: string): SelectQueryBuilder<ImcEntity> {
-    return super.createQueryBuilder(alias);
   }
 }

@@ -1,9 +1,11 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn } from 'typeorm';
+import { Entity, Column, CreateDateColumn } from 'typeorm';
+import { ObjectId } from 'mongodb';
+import { ObjectIdColumn } from 'typeorm/decorator/columns/ObjectIdColumn';
 
 @Entity('imc_calculos')
 export class ImcEntity {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @ObjectIdColumn()
+  id: ObjectId;
 
   @Column('float')
   peso: number;
