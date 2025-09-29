@@ -6,16 +6,12 @@ import { config } from 'dotenv';
 config({ path:'.env'});
 
 const databaseConfig = {
-  host: process.env.DB_HOST || 'localhost',
-  port: parseInt(process.env.DB_PORT ?? '3306', 10),
-  username: process.env.DB_USER || 'root',
-  password: process.env.DB_PASSWORD || undefined,
-  database: process.env.DB_NAME || 'imc_db',
+  url: process.env.DB_URL
 }
 
 // Configuración de TypeORM
 const AppDataSource = new DataSource({
-  type: 'mysql',
+  type: 'mongodb',
   ...databaseConfig,
   entities: [ImcEntity],
   synchronize: true,
@@ -28,21 +24,12 @@ async function seed() {
 
     const imcRepository = AppDataSource.getRepository(ImcEntity);
 
-    // Datos de prueba
-    const datosPrueba = [
-      { altura: 1.75, peso: 70 },
-      { altura: 1.60, peso: 55 },
-      { altura: 1.82, peso: 90 },
-      { altura: 1.68, peso: 65 },
-      { altura: 1.70, peso: 50 },
-      { altura: 1.55, peso: 48 },
-      { altura: 1.90, peso: 110 },
-      { altura: 1.62, peso: 75 },
-      { altura: 1.78, peso: 85 },
-      { altura: 1.65, peso: 60 },
-      { altura: 1.72, peso: 95 },
-      { altura: 1.58, peso: 53 },
-    ];
+    // Generar 100 datos de prueba aleatorios
+    const datosPrueba = Array.from({ length: 100 }, () => {
+      const altura = +(Math.random() * (3.00 - 0.01)+ 0.01).toFixed(2); // entre 1.50 y 1.90
+      const peso = +(Math.random() * (500.00 - 0.01)+ 0.01).toFixed(1);        // entre 45 y 110
+      return { altura, peso };
+    });
 
     for (const dato of datosPrueba) {
       // Calcular IMC
@@ -51,14 +38,14 @@ async function seed() {
       // Determinar categoría
       const categoria =
         imcValue < 18.5 ? 'Bajo peso' :
-          imcValue < 25 ? 'Normal' :
-            imcValue < 30 ? 'Sobrepeso' :
-              'Obeso';
+        imcValue < 25   ? 'Normal' :
+        imcValue < 30   ? 'Sobrepeso' :
+                          'Obeso';
 
       // Crear entidad con todos los campos obligatorios
       const imcEntity = imcRepository.create({
         ...dato,
-        imc: parseFloat(imcValue.toFixed(2)), // opcional: redondea a 2 decimales
+        imc: parseFloat(imcValue.toFixed(2)), // redondea a 2 decimales
         categoria,
         fecha: new Date(),
       });
@@ -66,7 +53,7 @@ async function seed() {
       await imcRepository.save(imcEntity);
     }
 
-    console.log('Datos de prueba insertados correctamente');
+    console.log('100 datos de prueba insertados correctamente');
   } catch (error) {
     console.error('Error al inicializar la base de datos:', error);
   } finally {
@@ -78,3 +65,4 @@ async function seed() {
 seed();
 
 // npx ts-node src/seed.ts
+
