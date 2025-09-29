@@ -7,7 +7,7 @@ export class HistorialImcResponse {
   @ApiProperty({ example: 90, description: 'Peso en kilogramos' })
   peso: number;
 
-  @ApiProperty({ example: '2025-09-22T18:21:00.000Z', description: 'Fecha de registro (ISO)' })
+  @ApiProperty({ example: '2025-09-22', description: 'Fecha de registro (ISO)' })
   fecha: Date;
 
   @ApiProperty({ example: 'Obeso', description: 'Categoría del IMC' })

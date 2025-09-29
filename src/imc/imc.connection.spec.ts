@@ -1,18 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { TypeOrmModule, getDataSourceToken } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
-import { ImcEntity } from './entities/imc.entity';
 
 describe('MySQL Database Connection', () => {
   let module: TestingModule;
   let dataSource: DataSource;
 
   // Definimos las variables de entorno directamente
-  process.env.DB_HOST = 'localhost';
-  process.env.DB_PORT = '3306';
-  process.env.DB_USER = 'root';
-  process.env.DB_PASSWORD = 'root';
-  process.env.DB_NAME = 'imc_test';
+  process.env.DB_URL="mongodb+srv://thomas:inising44@imc.swzfa9j.mongodb.net/imc?retryWrites=true&w=majority&appName=imc";
 
   beforeAll(async () => {
      
@@ -21,13 +16,10 @@ describe('MySQL Database Connection', () => {
       imports: [
         TypeOrmModule.forRootAsync({
           useFactory: () => ({
-            type: 'mysql' as const,
-            host: process.env.DB_HOST,
-            port: parseInt(process.env.DB_PORT!, 10),
-            username: process.env.DB_USER,
-            password: process.env.DB_PASSWORD,
-            database: process.env.DB_NAME,
-            entities: [ImcEntity],
+            type: 'mongodb',
+            url: process.env.DB_URL,
+            ssl: true,
+            autoLoadEntities: true,
             synchronize: true, // crea tablas automáticamente para testing
           }),
         }),
